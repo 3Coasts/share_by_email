@@ -81,7 +81,7 @@ function share_by_email_form_submit($form, &$form_state) {
     $message = $system->format($message);
     $message['result'] = $system->mail($message);
 
-    dsm($message);
-	drupal_set_message(t('Your form has been saved.'));
+	drupal_set_message(t("Thanks for sharing!"));
+	drupal_goto("node/" . $form['nid']['#value']);
 
 }
