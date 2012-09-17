@@ -1,0 +1,87 @@
+<?php
+
+function share_by_email_menu(){
+	$items['node/%node/email'] = array(
+		'title' => 'Share this page by email',
+		'page callback' => 'share_by_email_page',
+		'page arguments' => array('node', 1),
+		'access arguments' => array('share by email'),
+		'type' => MENU_NORMAL_ITEM
+	);
+	return $items;
+}
+
+function share_by_email_page($type, $object) {
+	if($type == 'node'){
+		return drupal_get_form('share_by_email_form',strval($object->nid));
+	}
+}
+
+function share_by_email_form(){
+	$args = func_get_args();
+	$nid = $args[2];
+
+	$form = array();
+	$form['preview'] = array(
+		'#type' => 'item',
+		'#title' => 'Link to Share',
+		'#markup' => "http://nolaforlife.3to.me/node/" . $nid,
+	);
+	$form['nid'] = array(
+		'#type' => 'hidden',
+		'#value' => $nid,
+	);
+	$form['your_name'] = array(
+		'#type' => 'textfield',
+		'#title' => "Your Name",
+		'#required' => TRUE,
+	);
+	$form['your_email'] = array(
+		'#type' => 'textfield',
+		'#title' => 'Your Email',
+		'#required' => TRUE,
+	);
+	$form['recipient_email'] = array(
+		'#type' => 'textfield',
+		'#title' => "Recipient's Email",
+		'#required' => TRUE,
+	);
+	$form['message'] = array(
+		'#type' => 'textarea',
+		'#title' => 'Your Message',
+		'#description' => t("This message will be added to the top of the email sent."),
+	);
+	$form['submit'] = array('#type' => 'submit', '#value' => t('Share'));
+	return $form;
+}
+
+
+function share_by_email_form_submit($form, &$form_state) {
+	dsm($form);
+
+
+	$module = 'share_by_email';
+    $key = 'share';
+    $language = language_default();
+    $params = array();
+    $from = NULL;
+    $send = FALSE;
+    $email = $form['recipient_email']['#value'];
+    $message = drupal_mail($module, $key, $email, $language, $params, $from, $send);
+    $message['subject'] = $form['your_name']['#value'] . " has shared a link with you.";
+    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+    $message['body'] = array();
+	$message['body'][] = $form['your_name']['#value'] . " has shared a message and a link with you from the NOLAForLife website.<br /><br />";
+	$message['body'][] = "---------------------------<br />";
+	$message['body'][] = $form['message']['#value'] . "<br />";
+	$message['body'][] = "---------------------------<br /><br />";
+	$message['body'][] = "Link: http://nolaforlife.3to.me/node/" . $form['nid']['#value'];
+
+    $system = drupal_mail_system($module, $key);
+    $message = $system->format($message);
+    $message['result'] = $system->mail($message);
+
+    dsm($message);
+	drupal_set_message(t('Your form has been saved.'));
+
+}

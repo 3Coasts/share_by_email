@@ -1,0 +1,4 @@
+name = share_by_email
+description = "This provides a menu path that accepts a nid argument and allows users to share a page."
+core = 7.x
+
