@@ -11,6 +11,15 @@ function share_by_email_menu(){
 	return $items;
 }
 
+function share_by_email_perm(){
+	return array(
+		"share by email" => array(
+			"title" => "Allow users to share by email",
+			"description" => "Allows users to share pages by email when links are provided to node/%/edit."
+		)
+	);
+}
+
 function share_by_email_page($type, $object) {
 	if($type == 'node'){
 		return drupal_get_form('share_by_email_form',strval($object->nid));
