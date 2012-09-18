@@ -11,7 +11,7 @@ function share_by_email_menu(){
 	return $items;
 }
 
-function share_by_email_perm(){
+function share_by_email_permission(){
 	return array(
 		"share by email" => array(
 			"title" => "Allow users to share by email",
