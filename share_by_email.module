@@ -29,12 +29,13 @@ function share_by_email_page($type, $object) {
 function share_by_email_form(){
 	$args = func_get_args();
 	$nid = $args[2];
+  $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off' || $_SERVER['SERVER_PORT'] == 443) ? "https://" : "http://";
 
 	$form = array();
 	$form['preview'] = array(
 		'#type' => 'item',
 		'#title' => 'Link to Share',
-		'#markup' => "http://nolaforlife.3to.me/node/" . $nid,
+		'#markup' => $protocol . $_SERVER['HTTP_HOST'] . "/node/" . $nid,
 	);
 	$form['nid'] = array(
 		'#type' => 'hidden',
