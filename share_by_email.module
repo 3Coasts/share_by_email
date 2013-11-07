@@ -67,27 +67,37 @@ function share_by_email_form(){
 
 
 function share_by_email_form_submit($form, &$form_state) {
-	
+
+	$nid = $form['nid']['#value'];
 	$module = 'share_by_email';
-    $key = 'share';
-    $language = language_default();
-    $params = array();
-    $from = NULL;
-    $send = FALSE;
-    $email = $form['recipient_email']['#value'];
-    $message = drupal_mail($module, $key, $email, $language, $params, $from, $send);
-    $message['subject'] = $form['your_name']['#value'] . " has shared a link with you.";
-    $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
-    $message['body'] = array();
-	$message['body'][] = $form['your_name']['#value'] . " has shared a message and a link with you from the NOLAForLife website.<br /><br />";
+  $key = 'share';
+  $language = language_default();
+  $params = array();
+  $from = NULL;
+  $send = FALSE;
+  $url = $_SERVER['HTTP_ORIGIN'] . "/node/$nid";
+  $email = $form['recipient_email']['#value'];
+  $message = drupal_mail($module, $key, $email, $language, $params, $from, $send);
+  $message['subject'] = $form['your_name']['#value'] . " has shared a link with you.";
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8; format=flowed';
+  $message['body'] = array();
+	$message['body'][] = $form['your_name']['#value'] . " has shared a message and a link with you from the BIC Alliance Magazine website.<br /><br />";
 	$message['body'][] = "---------------------------<br />";
 	$message['body'][] = $form['message']['#value'] . "<br />";
 	$message['body'][] = "---------------------------<br /><br />";
-	$message['body'][] = "Link: http://nolaforlife.3to.me/node/" . $form['nid']['#value'];
+	$message['body'][] = "Link: $url";
 
-    $system = drupal_mail_system($module, $key);
-    $message = $system->format($message);
-    $message['result'] = $system->mail($message);
+  $system = drupal_mail_system($module, $key);
+  $message = $system->format($message);
+  $message['result'] = $system->mail($message);
+
+
+	if(module_exists('flag')){
+		$flag = flag_get_flag('emailed');
+		if($flag){
+			$flag->flag('flag', $nid);
+		}
+	}
 
 	drupal_set_message(t("Thanks for sharing!"));
 	drupal_goto("node/" . $form['nid']['#value']);
